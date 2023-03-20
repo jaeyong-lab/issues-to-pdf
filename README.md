@@ -48,6 +48,10 @@
   $ pnpm start  
   ```
 
+### Test
+- [VSCode REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
+- apis test file: `test/github-graphql.rest`
+
 
 
 <!-- LICENSE -->
