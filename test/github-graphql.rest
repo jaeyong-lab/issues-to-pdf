@@ -84,9 +84,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 X-REQUEST-TYPE: GraphQL
 
-query ($orglogin: String!, $projectnum: Int!, ) {
+query ($orglogin: String!, $projectid: Int!, ) {
   organization(login: $orglogin) {
-    projectV2 (number: $projectnum) {
+    projectV2 (number: $projectid) {
       id
       number
       title
@@ -113,7 +113,7 @@ query ($orglogin: String!, $projectnum: Int!, ) {
 
 {
     "orglogin": "finset-io",
-    "projectnum": 19
+    "projectid": 19
 }
 
 ###
@@ -124,9 +124,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 X-REQUEST-TYPE: GraphQL
 
-query ($orglogin: String!, $projectnum: Int!, ) {
+query ($orglogin: String!, $projectid: Int!, ) {
   organization(login: $orglogin) {
-    projectV2 (number: $projectnum) {
+    projectV2 (number: $projectid) {
       id
       number
       title
@@ -149,7 +149,7 @@ query ($orglogin: String!, $projectnum: Int!, ) {
 
 {
     "orglogin": "finset-io",
-    "projectnum": 19
+    "projectid": 19
 }
 
 ###
@@ -160,9 +160,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 X-REQUEST-TYPE: GraphQL
 
-query ($orglogin: String!, $projectnum: Int!) {
+query ($orglogin: String!, $projectid: Int!) {
   organization(login: $orglogin) {
-    projectV2 (number: $projectnum) {
+    projectV2 (number: $projectid) {
       items(last: 10) {
         totalCount
         pageInfo {
@@ -217,5 +217,5 @@ query ($orglogin: String!, $projectnum: Int!) {
 
 {
   "orglogin": "finset-io",
-  "projectnum": 19
+  "projectid": 19
 }

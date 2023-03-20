@@ -2,14 +2,16 @@
 import * as _ from 'lodash';
 import { graphqlClient, queryProjects, queryProjectIssues } from './github-api';
 
-const FINSET_ORGLOGIN = 'finset-io';
+
+const GITHUB_ORG: string = <string>process.env.GITHUB_ORG;
+const GITHUB_PROJECT_ID: number = <number>_.toNumber(process.env.GITHUB_PROJECT_ID)
 
 /**
  * get all projects
  * @param orglogin  : org name
  * @returns         : org's project list
  */
-const getProjects = async (orglogin: string = FINSET_ORGLOGIN): Promise<any> => {
+const getProjects = async (orglogin: string): Promise<any> => {
   const STEP: number = 10;
   let total: number = 0;
   let projects: any = [];
@@ -39,10 +41,10 @@ const getProjects = async (orglogin: string = FINSET_ORGLOGIN): Promise<any> => 
 /**
  * get all issues in project
  * @param orglogin    : org name
- * @param projectnum  : project number
+ * @param projectid   : project id
  * @returns           : issue list
  */
-const getIssues = async (orglogin: string, projectnum: number): Promise<any> => {
+const getIssues = async (orglogin: string, projectid: number): Promise<any> => {
   const STEP: number = 50;
   let total: number = 0;
   let issues: any = [];
@@ -51,7 +53,7 @@ const getIssues = async (orglogin: string, projectnum: number): Promise<any> => 
 
   try {
     while(hasNextPage) {
-      const result = await graphqlClient(queryProjectIssues(orglogin, projectnum, afterCursor, STEP));
+      const result = await graphqlClient(queryProjectIssues(orglogin, projectid, afterCursor, STEP));
       const items: any = _.get(result, 'organization.projectV2.items');
       const pageInfo: any = items.pageInfo;
       total = <number>items.totalCount;
@@ -70,14 +72,14 @@ const getIssues = async (orglogin: string, projectnum: number): Promise<any> => 
 }
 
 const runTest = async () => {
-  const orglogin: string = FINSET_ORGLOGIN;
+  const orglogin: string = GITHUB_ORG;
   // 19: dev-mercury
   // 39: dev-saturn
-  const projectnum: number = 19; 
+  const projectid: number = GITHUB_PROJECT_ID; 
   const status: string = 'In progress';
 
   // const projects = await getProjects(orglogin);
-  const issues = await getIssues(orglogin, projectnum);
+  const issues = await getIssues(orglogin, projectid);
   const inProgressIssues = _.filter(issues, (item) => {
     return item.fieldValueByName?.name === status;
   });
