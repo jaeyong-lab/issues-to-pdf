@@ -9,6 +9,9 @@
   - [graphql client](https://github.com/octokit/graphql.js)
   - [manage projects apis](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects)
   - [understand projects fields](https://docs.github.com/en/issues/planning-and-tracking-with-projects/understanding-fields/about-text-and-number-fields)
+  - GraphQL Obejct
+    - [ProjectV2 Object](https://docs.github.com/ko/graphql/reference/objects#projectv2)
+    - [Issue Object](https://docs.github.com/ko/graphql/reference/objects#issue)
 
 
 - Github Token
@@ -20,6 +23,10 @@
 
 
     > GraphQL API에 인증하려면 personal access token (classic), GitHub App 또는 OAuth App을 만들어야 합니다. GraphQL API는 fine-grained personal access tokens의 인증을 지원하지 않습니다.
+
+- Templates
+  - `alex-template` : https://github.com/alexfinset/gitple-planning-butler-v2
+  - `primer-template`: https://primer.style/css
 
 - [pnpm](https://pnpm.io/): node package manager
 

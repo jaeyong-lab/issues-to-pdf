@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Template</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css"
+    />
+  </head>
+  <style>
+    html,
+    body,
+    div.container {
+      height: 100%;
+    }
+  </style>
+  <body>
+    <div class="container">
+      <table class="table">
+        <tbody>
+          <tr style="border-bottom-style: hidden">
+            <td class="p-0" style="width: 100%">
+              <span class="tag">{{this.teamName}}</span>
+            </td>
+            <td class="p-0">
+              <figure class="image is-48x48">
+                <!-- <img
+                  src="https://betterday.co.kr/favicon-96x96.png"
+                  alt="gitple logo"
+                /> -->
+              </figure>
+            </td>
+          </tr>
+          <tr style="text-align: center">
+            <td>
+              <h1 class="subtitle is-5">{{this.title}}</h1>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table">
+        <tbody>
+          <tr>
+            <td class="p-0" style="width: 100%">
+              <div>
+                {{#each labels}}
+                <span style="{{this.style}}" class="tag is-large mr-1"
+                  >{{this.name}}</span
+                >
+                {{/each}}
+              </div>
+            </td>
+            <td class="p-0">
+              <span class="tag is-large is-dark mr-1">#{{this.number}}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <br />
+      <article
+        style="height: 550px; overflow: hidden"
+        class="markdown-body my-1"
+      >
+        {{{this.body}}}
+      </article>
+    </div>
+  </body>
+</html>
