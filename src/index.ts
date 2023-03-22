@@ -1,10 +1,31 @@
 "use strict";
 import * as _ from 'lodash';
-import { graphqlClient, queryProjects, queryProjectIssues } from './github-api';
-
+import { graphqlClient, queryProjects, queryProjectItems } from './github-api';
 
 const GITHUB_ORG: string = <string>process.env.GITHUB_ORG;
 const GITHUB_PROJECT_ID: number = <number>_.toNumber(process.env.GITHUB_PROJECT_ID)
+
+interface GITHUB_ISSUE_PROJECT_EST {
+  name: string;
+  value: number;
+};
+
+interface GITHUB_ISSUE_LABEL {
+  name: string;
+  color: string;
+};
+
+interface GITHUB_ISSUE {
+  status?: string;                  // project status
+  est?: GITHUB_ISSUE_PROJECT_EST[]  // project estimation
+  num: number;                      // issue number
+  title: string;                    // issue title
+  body: string;                     // issue body
+  labels?: GITHUB_ISSUE_LABEL[]     // issue lables
+  url?: string;
+  repoNameWithOwner?: string;
+  author?: string;
+};
 
 /**
  * get all projects
@@ -44,7 +65,7 @@ const getProjects = async (orglogin: string): Promise<any> => {
  * @param projectid   : project id
  * @returns           : issue list
  */
-const getIssues = async (orglogin: string, projectid: number): Promise<any> => {
+const getProjectItems = async (orglogin: string, projectid: number): Promise<any> => {
   const STEP: number = 50;
   let total: number = 0;
   let issues: any = [];
@@ -53,7 +74,7 @@ const getIssues = async (orglogin: string, projectid: number): Promise<any> => {
 
   try {
     while(hasNextPage) {
-      const result = await graphqlClient(queryProjectIssues(orglogin, projectid, afterCursor, STEP));
+      const result = await graphqlClient(queryProjectItems(orglogin, projectid, afterCursor, STEP));
       const items: any = _.get(result, 'organization.projectV2.items');
       const pageInfo: any = items.pageInfo;
       total = <number>items.totalCount;
@@ -71,6 +92,8 @@ const getIssues = async (orglogin: string, projectid: number): Promise<any> => {
   return issues;
 }
 
+
+
 const runTest = async () => {
   const orglogin: string = GITHUB_ORG;
   // 19: dev-mercury
@@ -79,12 +102,37 @@ const runTest = async () => {
   const status: string = 'In progress';
 
   // const projects = await getProjects(orglogin);
-  const issues = await getIssues(orglogin, projectid);
-  const inProgressIssues = _.filter(issues, (item) => {
-    return item.fieldValueByName?.name === status;
-  });
+  const items = await getProjectItems(orglogin, projectid);
 
-  console.log('[runTest] result:', inProgressIssues);
+  const issues: GITHUB_ISSUE[] = _.reduce(items, (result: GITHUB_ISSUE[], item) => {
+    
+    if (item.type === 'ISSUE' && item.fieldValueByName?.name === status) {
+      const issue: GITHUB_ISSUE = {
+        status: item.fieldValueByName?.name,
+        est: _.reduce(item?.fieldValues?.nodes, (result: GITHUB_ISSUE_PROJECT_EST[], node) => {
+          if (_.isNumber(node.number) && !_.isEmpty(node.field?.name)) {
+            result.push({
+              name: node.field.name,
+              value: node.number
+            });
+          }
+          return result;
+        }, []),
+        num: item.content?.number,
+        title: item.content?.title,
+        body: item.content?.body,
+        labels: item.content?.labels?.nodes,
+        url: item.content?.url,
+        repoNameWithOwner: item.content?.repository?.nameWithOwner,
+        author: item.content?.author?.login
+      }
+      result.push(issue);
+    }
+    return result;
+  }, []);
+
+
+  console.log('[runTest] result:', issues);
 };
 
 runTest();

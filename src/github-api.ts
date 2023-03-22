@@ -47,10 +47,10 @@ export const queryProjects = (orglogin: string, after: string, first: number) =>
   }
 }
 
-const QUERY_PROJECT_ISSUES = `
-  query ($orglogin: String!, $projectnum: Int!, $after: String!, $first: Int!) {
+const QUERY_PROJECT_ITEMS = `
+  query ($orglogin: String!, $projectid: Int!, $after: String!, $first: Int!) {
     organization(login: $orglogin) {
-      projectV2 (number: $projectnum) {
+      projectV2 (number: $projectid) {
         items(after: $after, first: $first) {
           totalCount
           pageInfo {
@@ -67,16 +67,8 @@ const QUERY_PROJECT_ISSUES = `
                 name
               }
             }
-            fieldValues(last: 10) {
+            fieldValues(last: 20) {
               nodes {
-                ... on ProjectV2ItemFieldLabelValue {
-                  labels(last: 10) {
-                    nodes {
-                      name
-                      color
-                    }
-                  }
-                }
                 ... on ProjectV2ItemFieldNumberValue {
                   field {
                     ... on ProjectV2Field {
@@ -87,14 +79,25 @@ const QUERY_PROJECT_ISSUES = `
                 }
               }
             }
-            content{              
-              ... on DraftIssue {
+            content{
+              ...on Issue {
+                repository {
+                  name
+                  nameWithOwner
+                }
+                author {
+                  login
+                }
+                number
                 title
                 body
-              }
-              ...on Issue {
-                title
                 url
+                labels(last: 10) {
+                  nodes {
+                    name
+                    color
+                  }
+                }
               }
             }
           }
@@ -104,11 +107,11 @@ const QUERY_PROJECT_ISSUES = `
   }
 `;
 
-export const queryProjectIssues = (orglogin: string, projectnum: number, after: string, first: number) => {
+export const queryProjectItems = (orglogin: string, projectid: number, after: string, first: number) => {
   return {
-    query: QUERY_PROJECT_ISSUES,
+    query: QUERY_PROJECT_ITEMS,
     orglogin: orglogin,
-    projectnum: projectnum,
+    projectid: projectid,
     after: after,
     first: first
   }

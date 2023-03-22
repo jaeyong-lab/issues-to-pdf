@@ -179,7 +179,7 @@ query ($orglogin: String!, $projectid: Int!) {
               name
             }
           }
-          fieldValues(last: 10) {
+          fieldValues(last: 20) {
             nodes {
               ... on ProjectV2ItemFieldLabelValue {
                 labels(last: 10) {
@@ -205,8 +205,22 @@ query ($orglogin: String!, $projectid: Int!) {
               body
             }
             ...on Issue {
+              repository {
+                name
+                nameWithOwner
+              }
+              author {
+                login
+              }
+              number
               title
               url
+              labels(last: 10) {
+                nodes {
+                  name
+                  color
+                }
+              }
             }
           }
         }
