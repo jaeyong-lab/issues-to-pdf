@@ -82,7 +82,6 @@ const QUERY_PROJECT_ITEMS = `
             content{
               ...on Issue {
                 repository {
-                  name
                   nameWithOwner
                 }
                 author {

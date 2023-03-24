@@ -3,7 +3,8 @@ import * as _ from 'lodash';
 import { graphqlClient, queryProjects, queryProjectItems } from './github-api';
 
 const GITHUB_ORG: string = <string>process.env.GITHUB_ORG;
-const GITHUB_PROJECT_ID: number = <number>_.toNumber(process.env.GITHUB_PROJECT_ID)
+const GITHUB_PROJECT_ID: number = <number>_.toNumber(process.env.GITHUB_PROJECT_ID);
+const GITHUB_PROJECT_STATUS: string = <string>process.env.GITHUB_PROJECT_STATUS;
 
 export interface GITHUB_ISSUE_PROJECT_EST {
   name: string;
@@ -24,8 +25,6 @@ export interface GITHUB_ISSUE {
   labels?: GITHUB_ISSUE_LABEL[]     // issue lables
   url?: string;
   repoNameWithOwner?: string;
-  repoName?: string;
-  repoOwner?: string;
   author?: string;
   createdAt?: string;
 };
@@ -85,7 +84,7 @@ const getProjectItems = async (orglogin: string, projectid: number): Promise<any
       hasNextPage = pageInfo.hasNextPage
       issues = _.concat(issues, items.nodes);
     }
-    console.log(`[getIssues] total:${total}, issues count: ${_.size(issues)}`);
+    // console.log(`[getIssues] total:${total}, issues count: ${_.size(issues)}`);
     
   } catch (error: any) {
     console.log('Request failed:', error.request); // { query, variables: {}, headers: { authorization: 'token secret123' } }
@@ -100,7 +99,7 @@ export const getProjectIssues = async (): Promise<GITHUB_ISSUE[]> => {
   // 19: dev-mercury
   // 39: dev-saturn
   const projectid: number = GITHUB_PROJECT_ID; 
-  const status: string = 'In progress';
+  const status: string = GITHUB_PROJECT_STATUS;
 
   // const projects = await getProjects(orglogin);
   const items = await getProjectItems(orglogin, projectid);
@@ -125,8 +124,6 @@ export const getProjectIssues = async (): Promise<GITHUB_ISSUE[]> => {
         labels: item.content?.labels?.nodes,
         url: item.content?.url,
         repoNameWithOwner: item.content?.repository?.nameWithOwner,
-        repoName: item.content?.repository?.name,
-        repoOwner: _.split(item.content?.repository?.nameWithOwner, '/')[0],
         author: item.content?.author?.login,
         createdAt: item.content?.createdAt
       }

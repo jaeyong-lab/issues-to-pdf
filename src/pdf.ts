@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import puppeteer from 'puppeteer';
 import Handlebars from 'handlebars';
 import * as _ from 'lodash';
+import PDFMerger from 'pdf-merger-js';
 import { GITHUB_ISSUE } from './github';
 
 
@@ -17,6 +18,7 @@ const TEMPLATES = [
     path: `${TEMPLATE_BASE_PATH}/alex-template.html`
   }
 ];
+const DEFAULT_TEMPLATE: string = 'primer';
 
 const loadTemplate = async (name: string): Promise<string> => {
   const template = _.find(TEMPLATES, {name: name});
@@ -29,7 +31,7 @@ const loadTemplate = async (name: string): Promise<string> => {
   let source: string = '';
   try {
     source = await readFile(template.path, 'utf-8');
-    console.log('[pdf/compileTemplate] read template file : ', template.name)
+    // console.log('[pdf/compileTemplate] read template file : ', template.name)
   } catch (error) {
     console.error('[pdf/compileTemplate] read template failed. error', error);
     throw error;
@@ -39,23 +41,38 @@ const loadTemplate = async (name: string): Promise<string> => {
 };
 
 
-export const generatePdf = async (issues: GITHUB_ISSUE[]) => {
-  const templateSource = await loadTemplate('primer');
+export const generatePdf = async (issues: GITHUB_ISSUE[], outputName = 'merged-issues.pdf') => {
+  const templateSource = await loadTemplate(DEFAULT_TEMPLATE);
   const template = Handlebars.compile(templateSource);
 
   const htmlIssues: string[] = issues.map((issue) => {
-    return template(issue);
+    const createdDate: string = issue.createdAt ? (new Date(issue.createdAt)).toDateString() : '';
+    const repoNames: string[] = issue.repoNameWithOwner ? _.split(issue.repoNameWithOwner, '/') : ['', ''];
+    return template({
+      ...issue,
+      repoOwner: repoNames[0],
+      repoName: repoNames[1],
+      createdDate: createdDate
+    });
   });
 
   const browser = await puppeteer.launch({
-    headless: false,
+    // headless: false,
     // NOTE: change executeablePath for your system
     executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
   });
 
-  const page = await browser.newPage();
-  await page.setContent(htmlIssues[0]);
+  const merger = new PDFMerger();
+  for (const item of htmlIssues) {
+    const page = await browser.newPage();
+    await page.setContent(item);
 
-  // await page.pdf({ path: 'html.pdf', format: 'A4' })
-  // await browser.close();
+    // generate one page pdf buffer
+    const pdf = await page.pdf({format: 'A4', pageRanges: '1' });
+    await merger.add(pdf);
+  }
+  await browser.close();
+  await merger.save(outputName);
+  
+  return outputName;
 }

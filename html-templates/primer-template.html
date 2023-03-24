@@ -4,8 +4,15 @@
     <meta charset="utf-8" />
     <link href="https://unpkg.com/@primer/css@^20.2.4/dist/primer.css" rel="stylesheet" />
     <style>
+      @media print {
+        body {
+          -webkit-print-color-adjust: exact;
+        }
+      }
       html body {
         margin: 50px;
+        width: 19cm;
+        height: 27.7cm;
       }
 
       body section {
@@ -46,7 +53,7 @@
           <strong>{{{title}}}</strong> <span class="ml-1 color-fg-muted">#{{num}}</span>
         </h1>
         <div class="Subhead-description">
-          <span class="text-bold">{{author}}</span> opened this issue
+          <span class="text-bold">{{author}}</span> opened this issue on {{createdDate}}
         </div>
         {{#each est}}
           <div class="Subhead-actions">
