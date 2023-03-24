@@ -43,7 +43,7 @@
     <section>
       <div class="Subhead mb-0">
         <h1 class="Subhead-heading">
-          <strong>{{title}}</strong> <span class="ml-1 color-fg-muted">#{{num}}</span>
+          <strong>{{{title}}}</strong> <span class="ml-1 color-fg-muted">#{{num}}</span>
         </h1>
         <div class="Subhead-description">
           <span class="text-bold">{{author}}</span> opened this issue
@@ -59,7 +59,7 @@
     <!-- labels -->
     <section class="py-0">
       {{#each labels}}
-        <span class="IssueLabel color-fg-on-emphasis mr-1" style="background-color: {{color}};">
+        <span class="IssueLabel color-fg-on-emphasis mr-1" style="background-color: #{{{color}}}">
           {{name}}
         </span>
       {{/each}}
@@ -73,7 +73,7 @@
         </div> -->
         <div class="Box-body">
           <div class="markdown-body">
-            {{body}}
+            {{{body}}}
           </div>
         </div>
       </div>

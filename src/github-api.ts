@@ -89,9 +89,10 @@ const QUERY_PROJECT_ITEMS = `
                   login
                 }
                 number
-                title
-                body
+                titleHTML
+                bodyHTML
                 url
+                createdAt
                 labels(last: 10) {
                   nodes {
                     name
