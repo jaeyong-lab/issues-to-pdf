@@ -58,10 +58,17 @@
   $ pnpm start  
   ```
 
+### Troubleshooting
+- `puppeteer` execute path :  `src/pdfs.ts`
+    ```javascript
+    // NOTE: change executeablePath for your system
+    executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+    ```
+
+
 ### Test
 - [VSCode REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
 - apis test file: `test/github-graphql.rest`
-
 
 
 <!-- LICENSE -->
