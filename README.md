@@ -46,6 +46,7 @@
   GITHUB_TOKEN={my github token}
   GITHUB_ORG={my organization}
   GITHUB_PROJECT_ID={target project id}
+  GITHUB_PROJECT_STATUS={status name}
   ```
 
 - Installation
