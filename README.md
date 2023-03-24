@@ -59,7 +59,7 @@
   ```
 
 ### Troubleshooting
-- `puppeteer` execute path :  `src/pdfs.ts`
+- `puppeteer` execute path :  `src/pdf.ts`
     ```javascript
     // NOTE: change executeablePath for your system
     executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
