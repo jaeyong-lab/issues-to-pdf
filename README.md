@@ -25,7 +25,6 @@
     > GraphQL API에 인증하려면 personal access token (classic), GitHub App 또는 OAuth App을 만들어야 합니다. GraphQL API는 fine-grained personal access tokens의 인증을 지원하지 않습니다.
 
 - PDF Templates
-  - `alex-template`: https://github.com/alexfinset/gitple-planning-butler-v2
   - `primer-template`: https://primer.style/css
     - primer is systematically designed for GitHub
 
