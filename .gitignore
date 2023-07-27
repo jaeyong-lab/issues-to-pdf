@@ -105,3 +105,9 @@ dist
 
 # Build
 build
+
+# PDF output
+output
+
+# github mockup 
+github-response-mockup

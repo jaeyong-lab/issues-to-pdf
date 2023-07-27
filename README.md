@@ -44,9 +44,20 @@
   ```yml
   GITHUB_TOKEN={my github token}
   GITHUB_ORG={my organization}
-  GITHUB_PROJECT_ID={target project id}
+  GITHUB_PROJECT_ID={target project number}
   GITHUB_PROJECT_STATUS={status name}
   ```
+
+    * example
+      ```
+      GITHUB_TOKEN=ghp_xxxxxxx
+      GITHUB_ORG=jaeyong-lab
+      GITHUB_PROJECT_ID=39
+      # single status
+      GITHUB_PROJECT_STATUS=In progress
+      # multiple status
+      GITHUB_PROJECT_STATUS=In progress,Epic,Next
+      ```
 
 - Installation
   ```bash
@@ -54,7 +65,25 @@
   ```
 - Run
   ```bash
-  $ pnpm start  
+  $ pnpm start
+  ```
+- Result
+  ```bash
+    ╭────────────────────────╮
+    │                        │
+    │  Github issues To PDF  │
+    │                        │
+    ╰────────────────────────╯
+
+    ✔ Load project done!
+    ℹ Github Project: projec-title
+    ℹ Columns: In progress    
+
+    ✔ Do you want to proceed?
+    Yes
+    ✔ Load github issues done!
+    ✔ Generated PDF!
+    ℹ output/projec-title_In progress_2023-07-26.pdf 
   ```
 
 ### Troubleshooting
@@ -63,7 +92,6 @@
     // NOTE: change executeablePath for your system
     executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
     ```
-
 
 ### Test
 - [VSCode REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)

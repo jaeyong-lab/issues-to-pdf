@@ -132,7 +132,7 @@ query ($orglogin: String!, $projectid: Int!, ) {
       title
       closed
       createdAt
-      fields (last: 10) {
+      fields (last: 50) {
         totalCount
         nodes {
           ... on ProjectV2SingleSelectField {

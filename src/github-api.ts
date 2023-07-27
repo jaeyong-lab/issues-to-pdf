@@ -45,12 +45,50 @@ export const queryProjects = (orglogin: string, after: string, first: number) =>
     after: after,
     first: first
   }
-}
+};
+
+const QUERY_PROJECT_INFO = `
+  query ($orglogin: String!, $projectid: Int!, ) {
+    organization(login: $orglogin) {
+      projectV2 (number: $projectid) {
+        id
+        number
+        title
+        closed
+        createdAt
+        fields (last: 50) {
+          totalCount
+          nodes {
+            ... on ProjectV2SingleSelectField {
+              name
+              options {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const queryProjectInfo = (orglogin: string, projectid: number) => {
+  return {
+    query: QUERY_PROJECT_INFO,
+    orglogin: orglogin,
+    projectid: projectid
+  }
+};
+
 
 const QUERY_PROJECT_ITEMS = `
   query ($orglogin: String!, $projectid: Int!, $after: String!, $first: Int!) {
     organization(login: $orglogin) {
       projectV2 (number: $projectid) {
+        id
+        number
+        title
+        createdAt
         items(after: $after, first: $first) {
           totalCount
           pageInfo {
@@ -115,4 +153,4 @@ export const queryProjectItems = (orglogin: string, projectid: number, after: st
     after: after,
     first: first
   }
-}
+};

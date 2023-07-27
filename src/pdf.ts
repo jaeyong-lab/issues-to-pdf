@@ -1,10 +1,10 @@
-"use strict";
 import { readFile } from 'node:fs/promises';
 import puppeteer from 'puppeteer';
 import Handlebars from 'handlebars';
 import * as _ from 'lodash';
+import { format } from 'date-fns';
 import PDFMerger from 'pdf-merger-js';
-import { GITHUB_ISSUE } from './github';
+import { GITHUB_ISSUE, GITHUB_PROJECT } from './github';
 
 
 const TEMPLATE_BASE_PATH = `${__dirname}/../html-templates`;
@@ -40,10 +40,12 @@ const loadTemplate = async (name: string): Promise<string> => {
   return source;
 };
 
-
-export const generatePdf = async (issues: GITHUB_ISSUE[], outputName = 'merged-issues.pdf') => {
+const generatePdfFromIssues = async (fileName: string, issues: GITHUB_ISSUE[]) => {
+  const OUTPUT_PATH = 'output';
+  const SAVED_PATH = `${__dirname}/../${OUTPUT_PATH}`;
   const templateSource = await loadTemplate(DEFAULT_TEMPLATE);
   const template = Handlebars.compile(templateSource);
+
 
   const htmlIssues: string[] = issues.map((issue) => {
     const createdDate: string = issue.createdAt ? (new Date(issue.createdAt)).toDateString() : '';
@@ -111,7 +113,21 @@ export const generatePdf = async (issues: GITHUB_ISSUE[], outputName = 'merged-i
     await merger.add(pdf);
   }
   await browser.close();
-  await merger.save(outputName);
+  // const fileName = `${projectInfo.title}_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+  await merger.save(`${SAVED_PATH}/${fileName}`);
   
-  return outputName;
+  return `${OUTPUT_PATH}/${fileName}`;  
+}
+
+
+export const generatePdf = async (projectInfo: GITHUB_PROJECT, issues: GITHUB_ISSUE[]): Promise<string[]> => { 
+  const statusGroup: any = _.groupBy(issues, (issue) => issue.status);
+  let results: string[] = [];
+
+  for (var key in statusGroup){
+    // console.log('🚀  generatePdf  key:', key);
+    const fileName = `${projectInfo.title}_${key}_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+    results.push(await generatePdfFromIssues(fileName, statusGroup[key]));
+  }
+  return results;
 }

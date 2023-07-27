@@ -1,19 +1,43 @@
 'use strict';
 import ora from 'ora';
-import { getProjectIssues } from './github';
-// import GithubMockupJson from './github-mockup.json';
+import { consola } from "consola";
+import { GITHUB_PROJECT, GITHUB_ISSUE, getProjectIssues, getProjectInfo } from './github';
+// import GithubMockupJson from '../github-response-mockup/multiple-status-issues.json';
 import { generatePdf } from './pdf';
 
 (async () => {
-  let spinner = ora('Loading github issues').start();
 
-  const issues = await getProjectIssues();
-  spinner.succeed('Load github issues done!')
-  // console.log(JSON.stringify(issues));
+  consola.box("Github issues To PDF");
 
-  spinner = ora('Generating PDF').start();
+  let spinner = ora('Loading project').start();
+  const projectInfo: GITHUB_PROJECT = await getProjectInfo();
+  spinner.succeed('Load project done!');
 
-  const fileName = await generatePdf(issues);
-  // await generatePdf(GithubMockupJson);
-  spinner.succeed(`Generate PDF : ${fileName}`)
+  if (!projectInfo || !projectInfo.number) {
+    consola.warn("Invalid github information. Check .env file");
+    return;
+  }
+
+  consola.info(`Github Project: ${projectInfo.title}`);
+  consola.info(`Columns: ${projectInfo.columns}`);
+  
+  const answer = await consola.prompt("Do you want to proceed?", {
+    type: "confirm",
+  });
+
+  if (answer) {
+    spinner.start('Loading github issues');
+    const issues = await getProjectIssues();
+    spinner.succeed('Load github issues done!');
+    // console.log(JSON.stringify(issues));
+  
+    spinner.start('Generating PDF');
+    const results: string[] = await generatePdf(projectInfo, issues);
+    // const results: string[] = await generatePdf(projectInfo, GithubMockupJson);
+    spinner.succeed(`Generated PDF!`);
+
+    for (const item of results) {
+      consola.info(item);
+    }
+  }
 })();

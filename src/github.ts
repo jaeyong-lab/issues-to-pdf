@@ -1,10 +1,18 @@
 "use strict";
 import * as _ from 'lodash';
-import { graphqlClient, queryProjects, queryProjectItems } from './github-api';
+import { graphqlClient, queryProjects, queryProjectItems, queryProjectInfo } from './github-api';
 
 const GITHUB_ORG: string = <string>process.env.GITHUB_ORG;
 const GITHUB_PROJECT_ID: number = <number>_.toNumber(process.env.GITHUB_PROJECT_ID);
 const GITHUB_PROJECT_STATUS: string = <string>process.env.GITHUB_PROJECT_STATUS;
+
+export interface GITHUB_PROJECT {
+  id: string;
+  number: number;
+  title: string;
+  createdAt: string;
+  columns?: string[]; 
+}
 
 export interface GITHUB_ISSUE_PROJECT_EST {
   name: string;
@@ -53,13 +61,42 @@ const getProjects = async (orglogin: string): Promise<any> => {
     }
     console.log(`[getProjects] total:${total}, issues count: ${_.size(projects)}`);    
   } catch (error: any) {
-    console.log('Request failed:', error.request); // { query, variables: {}, headers: { authorization: 'token secret123' } }
-    console.log(error.message); // `invalid cursor` does not appear to be a valid cursor.
-    console.log(error.data); // { repository: { name: 'probot', ref: null } }
+    console.log('Request failed:', error.request);
+    console.log(error.message);
+    console.log(error.data);
   }
 
   return projects;
 };
+
+const getColumns = (): string[] => {
+  return _.split(GITHUB_PROJECT_STATUS, ',');
+}
+
+export const getProjectInfo =async (): Promise<GITHUB_PROJECT> => {
+  const orglogin: string = GITHUB_ORG;
+  const projectid: number = GITHUB_PROJECT_ID; 
+  let project: GITHUB_PROJECT;
+
+  try {
+    const projectResult = await graphqlClient(queryProjectInfo(orglogin, projectid));
+    project = {
+      id: _.get(projectResult, 'organization.projectV2.id'),
+      number: _.get(projectResult, 'organization.projectV2.number'),
+      title: _.get(projectResult, 'organization.projectV2.title'),
+      createdAt: _.get(projectResult, 'organization.projectV2.createdAt'),
+      columns: getColumns()
+    };
+
+    return project;
+
+  } catch (error: any) {
+    console.log('[getProjectInfo] Request failed:', error.request);
+    console.log(error.message);
+    console.log(error.data);
+  }
+  return project!;
+}
 
 /**
  * get all issues in project
@@ -87,26 +124,23 @@ const getProjectItems = async (orglogin: string, projectid: number): Promise<any
     // console.log(`[getIssues] total:${total}, issues count: ${_.size(issues)}`);
     
   } catch (error: any) {
-    console.log('Request failed:', error.request); // { query, variables: {}, headers: { authorization: 'token secret123' } }
-    console.log(error.message); // `invalid cursor` does not appear to be a valid cursor.
-    console.log(error.data); // { repository: { name: 'probot', ref: null } }
+    console.log('[getProjectItems] Request failed:', error.request);
+    console.log(error.message);
+    console.log(error.data);
   }
   return issues;
 };
 
 export const getProjectIssues = async (): Promise<GITHUB_ISSUE[]> => {
   const orglogin: string = GITHUB_ORG;
-  // 19: dev-mercury
-  // 39: dev-saturn
   const projectid: number = GITHUB_PROJECT_ID; 
-  const status: string = GITHUB_PROJECT_STATUS;
+  const columns: string[] = getColumns();
 
-  // const projects = await getProjects(orglogin);
   const items = await getProjectItems(orglogin, projectid);
 
   const issues: GITHUB_ISSUE[] = _.reduce(items, (result: GITHUB_ISSUE[], item) => {
     
-    if (item.type === 'ISSUE' && item.fieldValueByName?.name === status) {
+    if (item.type === 'ISSUE' && _.includes(columns, item.fieldValueByName?.name)) {
       const issue: GITHUB_ISSUE = {
         status: item.fieldValueByName?.name,
         est: _.reduce(item?.fieldValues?.nodes, (result: GITHUB_ISSUE_PROJECT_EST[], node) => {
