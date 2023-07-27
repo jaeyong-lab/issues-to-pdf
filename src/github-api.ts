@@ -1,4 +1,3 @@
-"use strict";
 import * as _ from 'lodash';
 import * as dotenv from 'dotenv';
 import { graphql } from '@octokit/graphql';

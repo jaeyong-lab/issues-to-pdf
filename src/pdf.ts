@@ -1,4 +1,5 @@
-import { readFile } from 'node:fs/promises';
+import * as fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import puppeteer from 'puppeteer';
 import Handlebars from 'handlebars';
 import * as _ from 'lodash';
@@ -30,7 +31,7 @@ const loadTemplate = async (name: string): Promise<string> => {
 
   let source: string = '';
   try {
-    source = await readFile(template.path, 'utf-8');
+    source = await fs.readFile(template.path, 'utf-8');
     // console.log('[pdf/compileTemplate] read template file : ', template.name)
   } catch (error) {
     console.error('[pdf/compileTemplate] read template failed. error', error);
@@ -114,6 +115,11 @@ const generatePdfFromIssues = async (fileName: string, issues: GITHUB_ISSUE[]) =
   }
   await browser.close();
   // const fileName = `${projectInfo.title}_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+
+  if (!existsSync(SAVED_PATH)) {
+    await fs.mkdir(SAVED_PATH);
+  }
+
   await merger.save(`${SAVED_PATH}/${fileName}`);
   
   return `${OUTPUT_PATH}/${fileName}`;  
@@ -125,7 +131,6 @@ export const generatePdf = async (projectInfo: GITHUB_PROJECT, issues: GITHUB_IS
   let results: string[] = [];
 
   for (var key in statusGroup){
-    // console.log('🚀  generatePdf  key:', key);
     const fileName = `${projectInfo.title}_${key}_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
     results.push(await generatePdfFromIssues(fileName, statusGroup[key]));
   }

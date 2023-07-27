@@ -1,7 +1,6 @@
-'use strict';
 import ora from 'ora';
 import { consola } from "consola";
-import { GITHUB_PROJECT, GITHUB_ISSUE, getProjectIssues, getProjectInfo } from './github';
+import { GITHUB_PROJECT, getProjectIssues, getProjectInfo } from './github';
 // import GithubMockupJson from '../github-response-mockup/multiple-status-issues.json';
 import { generatePdf } from './pdf';
 
@@ -18,8 +17,8 @@ import { generatePdf } from './pdf';
     return;
   }
 
-  consola.info(`Github Project: ${projectInfo.title}`);
-  consola.info(`Columns: ${projectInfo.columns}`);
+  consola.info(`Github Project: "${projectInfo.title}"`);
+  consola.info(`Columns: ${projectInfo.columns?.map((column) => `"${column}"`)}`);
   
   const answer = await consola.prompt("Do you want to proceed?", {
     type: "confirm",

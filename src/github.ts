@@ -1,4 +1,3 @@
-"use strict";
 import * as _ from 'lodash';
 import { graphqlClient, queryProjects, queryProjectItems, queryProjectInfo } from './github-api';
 
@@ -70,7 +69,7 @@ const getProjects = async (orglogin: string): Promise<any> => {
 };
 
 const getColumns = (): string[] => {
-  return _.split(GITHUB_PROJECT_STATUS, ',');
+  return _.split(GITHUB_PROJECT_STATUS, ',').map((status) => _.trim(status));
 }
 
 export const getProjectInfo =async (): Promise<GITHUB_PROJECT> => {
