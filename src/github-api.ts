@@ -114,6 +114,16 @@ const QUERY_PROJECT_ITEMS = `
                   }
                   number
                 }
+                ... on ProjectV2ItemFieldIterationValue {
+                  title
+                  startDate
+                  duration
+                  field {
+                  ... on ProjectV2IterationField {
+                      name
+                    }
+                  }
+                }
               }
             }
             content{

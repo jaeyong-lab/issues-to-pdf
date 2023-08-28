@@ -19,6 +19,9 @@ import { generatePdf } from './pdf';
 
   consola.info(`Github Project: "${projectInfo.title}"`);
   consola.info(`Columns: ${projectInfo.columns?.map((column) => `"${column}"`)}`);
+  if (projectInfo.iterations) {
+    consola.info(`Interations: ${JSON.stringify(projectInfo.iterations)}`);
+  }
   
   const answer = await consola.prompt("Do you want to proceed?", {
     type: "confirm",

@@ -110,7 +110,7 @@ const generatePdfFromIssues = async (fileName: string, issues: GITHUB_ISSUE[]) =
     await page.setContent(item);
 
     // generate one page pdf buffer
-    const pdf = await page.pdf({format: 'A4', pageRanges: '1' });
+    const pdf = await page.pdf({format: 'A4', pageRanges: '1'});
     await merger.add(pdf);
   }
   await browser.close();

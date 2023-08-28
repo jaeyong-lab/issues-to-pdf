@@ -4,6 +4,7 @@ import { graphqlClient, queryProjects, queryProjectItems, queryProjectInfo } fro
 const GITHUB_ORG: string = <string>process.env.GITHUB_ORG;
 const GITHUB_PROJECT_ID: number = <number>_.toNumber(process.env.GITHUB_PROJECT_ID);
 const GITHUB_PROJECT_STATUS: string = <string>process.env.GITHUB_PROJECT_STATUS;
+const GITHUB_PROJECT_ITERATION: string = <string>process.env.GITHUB_PROJECT_ITERATION;
 
 export interface GITHUB_PROJECT {
   id: string;
@@ -11,12 +12,20 @@ export interface GITHUB_PROJECT {
   title: string;
   createdAt: string;
   columns?: string[]; 
+  iterations?: any;
 }
 
 export interface GITHUB_ISSUE_PROJECT_EST {
   name: string;
   value: number;
 };
+
+export interface GITHUB_ISSUE_PROJECT_ITERATION {
+  name: string;
+  title: string;
+  startDate: string;
+  duration: number;
+}
 
 export interface GITHUB_ISSUE_LABEL {
   name: string;
@@ -25,7 +34,8 @@ export interface GITHUB_ISSUE_LABEL {
 
 export interface GITHUB_ISSUE {
   status?: string;                  // project status
-  est?: GITHUB_ISSUE_PROJECT_EST[]  // project estimation
+  est?: GITHUB_ISSUE_PROJECT_EST[]; // project estimation
+  iterations?: GITHUB_ISSUE_PROJECT_ITERATION[];  // project iterations
   num: number;                      // issue number
   title: string;                    // issue title
   body: string;                     // issue body
@@ -72,6 +82,19 @@ const getColumns = (): string[] => {
   return _.split(GITHUB_PROJECT_STATUS, ',').map((status) => _.trim(status));
 }
 
+// return format:  { "iteration name": "iteration title", ...  }
+const getIterations = (): any => {
+  let result;
+  try {
+    if (GITHUB_PROJECT_ITERATION) {
+      result = JSON.parse(GITHUB_PROJECT_ITERATION);
+    }
+  } catch (error) {
+    throw new Error('GITHUB_PROJECT_ITERATION is invalid format');
+  }
+  return result;
+}
+
 export const getProjectInfo =async (): Promise<GITHUB_PROJECT> => {
   const orglogin: string = GITHUB_ORG;
   const projectid: number = GITHUB_PROJECT_ID; 
@@ -84,13 +107,14 @@ export const getProjectInfo =async (): Promise<GITHUB_PROJECT> => {
       number: _.get(projectResult, 'organization.projectV2.number'),
       title: _.get(projectResult, 'organization.projectV2.title'),
       createdAt: _.get(projectResult, 'organization.projectV2.createdAt'),
-      columns: getColumns()
+      columns: getColumns(),
+      iterations: getIterations()
     };
 
     return project;
 
   } catch (error: any) {
-    console.log('[getProjectInfo] Request failed:', error.request);
+    console.log('\n[getProjectInfo] Request failed:', error.request);
     console.log(error.message);
     console.log(error.data);
   }
@@ -133,13 +157,15 @@ const getProjectItems = async (orglogin: string, projectid: number): Promise<any
 export const getProjectIssues = async (): Promise<GITHUB_ISSUE[]> => {
   const orglogin: string = GITHUB_ORG;
   const projectid: number = GITHUB_PROJECT_ID; 
-  const columns: string[] = getColumns();
+  const FILTER_COLUMNS: string[] = getColumns();
+  const FILTER_ITERATIONS: any = getIterations();
 
   const items = await getProjectItems(orglogin, projectid);
 
-  const issues: GITHUB_ISSUE[] = _.reduce(items, (result: GITHUB_ISSUE[], item) => {
+  // filter with status names
+  let issues: GITHUB_ISSUE[] = _.reduce(items, (result: GITHUB_ISSUE[], item) => {
     
-    if (item.type === 'ISSUE' && _.includes(columns, item.fieldValueByName?.name)) {
+    if (item.type === 'ISSUE' && _.includes(FILTER_COLUMNS, item.fieldValueByName?.name)) {
       const issue: GITHUB_ISSUE = {
         status: item.fieldValueByName?.name,
         est: _.reduce(item?.fieldValues?.nodes, (result: GITHUB_ISSUE_PROJECT_EST[], node) => {
@@ -147,6 +173,17 @@ export const getProjectIssues = async (): Promise<GITHUB_ISSUE[]> => {
             result.push({
               name: node.field.name,
               value: node.number
+            });
+          }
+          return result;
+        }, []),
+        iterations: _.reduce(item?.fieldValues?.nodes, (result: GITHUB_ISSUE_PROJECT_ITERATION[], node) => {
+          if (_.isNumber(node.duration) && !_.isEmpty(node.field?.name)) {
+            result.push({
+              name: node.field.name,
+              title: node.title,
+              startDate: node.startDate,
+              duration: node.duration
             });
           }
           return result;
@@ -164,6 +201,16 @@ export const getProjectIssues = async (): Promise<GITHUB_ISSUE[]> => {
     }
     return result;
   }, []);
+
+  // filter with iteration name, title
+  if (FILTER_ITERATIONS && !_.isEmpty(FILTER_ITERATIONS)) {
+    issues = _.filter( issues, (issue: GITHUB_ISSUE) => {
+      const result = _.find(issue.iterations, (item) => {
+        return FILTER_ITERATIONS[item.name] === item.title;
+      });
+      return !_.isNil(result);
+    });
+  }
 
   // console.log('[getProjectIssues] result:', issues);
   return issues;

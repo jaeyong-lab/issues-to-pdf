@@ -35,7 +35,7 @@ query ($orglogin: String!) {
 }
 
 {
-    "orglogin": "finset-io"
+    "orglogin": "jaeyong-io"
 }
 
 ###
@@ -71,7 +71,7 @@ query ($orglogin: String!, $after: String!, $first: Int!) {
 }
 
 {
-    "orglogin": "finset-io",
+    "orglogin": "jaeyong-io",
     "after": "",
     "first": 50
 }
@@ -112,8 +112,8 @@ query ($orglogin: String!, $projectid: Int!, ) {
 }
 
 {
-    "orglogin": "finset-io",
-    "projectid": 19
+    "orglogin": "jaeyong-io",
+    "projectid": 1
 }
 
 ###
@@ -135,6 +135,24 @@ query ($orglogin: String!, $projectid: Int!, ) {
       fields (last: 50) {
         totalCount
         nodes {
+          ... on ProjectV2IterationField {
+            id
+            name
+            configuration {
+              completedIterations {
+                id
+                title
+                startDate
+                duration
+              }
+              iterations {
+                id
+                title
+                startDate
+                duration
+              }
+            }
+          }
           ... on ProjectV2SingleSelectField {
             name
             options {
@@ -148,8 +166,8 @@ query ($orglogin: String!, $projectid: Int!, ) {
 }
 
 {
-    "orglogin": "finset-io",
-    "projectid": 19
+    "orglogin": "jaeyong-io",
+    "projectid": 1
 }
 
 ###
@@ -191,11 +209,21 @@ query ($orglogin: String!, $projectid: Int!) {
               }
               ... on ProjectV2ItemFieldNumberValue {
                 field {
-                  ... on ProjectV2Field {
+                ... on ProjectV2Field {
                     name
                   }
                 }
                 number
+              }
+              ... on ProjectV2ItemFieldIterationValue {
+                title
+                startDate
+                duration
+                field {
+                ... on ProjectV2IterationField {
+                    name
+                  }
+                }
               }
             }
           }
@@ -230,6 +258,6 @@ query ($orglogin: String!, $projectid: Int!) {
 }
 
 {
-  "orglogin": "finset-io",
-  "projectid": 19
+  "orglogin": "jaeyong-io",
+  "projectid": 1
 }
