@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.2.0 (2014-08-29)
+
+Features:
+
+  - add support for multiple GITHUB_PROJECT_ITERATION
+
+
 ## 1.1.1 (2014-07-27)
 
 Fix:
