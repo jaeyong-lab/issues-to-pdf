@@ -154,6 +154,14 @@ const getProjectItems = async (orglogin: string, projectid: number): Promise<any
   return issues;
 };
 
+const isDateInRange = (startDate: string, duration: number): boolean => {
+  const start = new Date(startDate);
+  const end = new Date(start);
+  end.setDate(start.getDate() + duration);
+  const today = new Date();
+  return today >= start && today <= end;
+};
+
 export const getProjectIssues = async (): Promise<GITHUB_ISSUE[]> => {
   const orglogin: string = GITHUB_ORG;
   const projectid: number = GITHUB_PROJECT_ID; 
@@ -202,11 +210,13 @@ export const getProjectIssues = async (): Promise<GITHUB_ISSUE[]> => {
     return result;
   }, []);
 
-  // filter with iteration name, title
+  // filter with iteration name, title, and date range
   if (FILTER_ITERATIONS && !_.isEmpty(FILTER_ITERATIONS)) {
-    issues = _.filter( issues, (issue: GITHUB_ISSUE) => {
+    issues = _.filter(issues, (issue: GITHUB_ISSUE) => {
       const result = _.find(issue.iterations, (item) => {
-        return FILTER_ITERATIONS[item.name] === item.title;
+        const isCurrent = FILTER_ITERATIONS[item.name] === '@current';
+        const matchesTitle = FILTER_ITERATIONS[item.name] === item.title;
+        return matchesTitle || (isCurrent && isDateInRange(item.startDate, item.duration));
       });
       return !_.isNil(result);
     });
